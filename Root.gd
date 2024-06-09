@@ -4,18 +4,17 @@ extends Node
 var window_rect := Rect2() 
 var full_screen_detection := false
 
-onready var line := $"debugdraw/Line2D"
-
+@onready var line := $"debugdraw/Line2D"
 
 func _ready():
-	Engine.target_fps = 30
-	OS.window_position = Vector2()
-	OS.window_size = OS.get_screen_size()-Vector2(0, 1)
-	
+	Engine.max_fps = 30
+	DisplayServer.window_set_position(Vector2())
+	DisplayServer.window_set_size(DisplayServer.window_get_size()-Vector2i(0, 1))
+
 	# doesn't always work in the Editor. Some inconsistent wierdness of 3.4.4
 	# should work on export.
-	OS.set_window_always_on_top(true)
-	window_rect = Rect2(OS.window_position, OS.window_size)
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, true)
+	window_rect = Rect2(DisplayServer.window_get_position(), DisplayServer.window_get_size())
 	get_viewport().transparent_bg = true
 	update_pet_area()
 
@@ -26,15 +25,15 @@ func _process(_delta):
 ## Currently called every frame. I'm working on a more performant solution.
 func update_pet_area():
 	if full_screen_detection:
-		OS.set_window_mouse_passthrough([])
+		DisplayServer.window_set_mouse_passthrough([])
 		return
-	
+
 	var polygons = []
 	for node in get_tree().get_nodes_in_group("Cutout"):
 		if node.has_method("get_cutout_polygon"):
 			polygons.push_back(node.get_cutout_polygon())
 			continue
-		
+
 		if Array(ClassDB.get_inheriters_from_class("Control")).has(node.get_class()):
 			if !node.is_visible_in_tree(): continue
 			var pol := []
@@ -42,13 +41,13 @@ func update_pet_area():
 			r = r.grow(5)
 			
 			## handle expand margins
-			var panel = node.get_stylebox("panel")
-			if panel.has_method("get_expand_margin"):
-				for i in range(4):
-					r = r.grow_margin(i, panel.get_expand_margin(i))
-			if panel.has_method("get_expand_margin_size"):
-				for i in range(4):
-					r = r.grow_margin(i, panel.get_expand_margin_size(i))
+			#var panel: StyleBox = node.get_stylebox("panel")
+			#if panel.has_method("get_expand_margin"):
+				#for i in range(4):
+					#r = r.grow_side(i, panel.get_expand_margin(i))
+			#if panel.has_method("get_expand_margin_size"):
+				#for i in range(4):
+					#r = r.grow_side(i, panel.get_expand_margin_size(i))
 			################
 			
 			pol.push_back(r.position)
@@ -82,7 +81,7 @@ func update_pet_area():
 				if i == i2: continue
 				if pol == null or pol2 == null: continue
 				if _polygons_intesect(pol, pol2):
-					polygons[i] = Geometry.merge_polygons_2d(pol, pol2)[0]
+					polygons[i] = Geometry2D.merge_polygons(pol, pol2)[0]
 					polygons[i2] = null
 		
 		while polygons.has(null):
@@ -99,12 +98,11 @@ func update_pet_area():
 	line.clear_points()
 	for p in points:
 		line.add_point(p)
-	OS.set_window_mouse_passthrough(PoolVector2Array(points))
-	
+	DisplayServer.window_set_mouse_passthrough(PackedVector2Array(points))
 
 func _polygons_intesect(p1, p2)->bool:
 #	prints("Inter:", Geometry.intersect_polygons_2d(p1, p2).size())
-	return Geometry.intersect_polygons_2d(p1, p2).size() > 0
+	return Geometry2D.intersect_polygons(p1, p2).size() > 0
 
 func _polygons_overlap(polygons:Array)->bool:
 	for i in range(polygons.size()):

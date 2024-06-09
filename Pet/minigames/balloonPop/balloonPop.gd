@@ -4,20 +4,20 @@ extends MarginContainer
 var balloon_scene := preload("res://Pet/minigames/balloonPop/balloon.tscn")
 
 var colors := {
-	"Red": Color.red,
-	"Green" : Color.green,
-	"Yellow" : Color.yellow,
-	"Blue": Color.blue,
-	"Purple": Color.purple,
-	"Orange": Color.orange,
+	"Red": Color.RED,
+	"Green" : Color.GREEN,
+	"Yellow" : Color.YELLOW,
+	"Blue": Color.BLUE,
+	"Purple": Color.PURPLE,
+	"Orange": Color.ORANGE,
 }
 
 
-onready var _timer := $Timer
-onready var _label := $VBoxContainer/Label
-onready var _area := $VBoxContainer/balloonArea
-onready var _rng := RandomNumberGenerator.new()
-onready var _particles := $VBoxContainer/CPUParticles2D
+@onready var _timer := $Timer
+@onready var _label := $VBoxContainer/Label
+@onready var _area := $VBoxContainer/balloonArea
+@onready var _rng := RandomNumberGenerator.new()
+@onready var _particles := $VBoxContainer/CPUParticles2D
 
 var search_color : Color
 
@@ -57,8 +57,8 @@ func _spawn_color(color:Color):
 	b.rect_position.y = _rng.randf_range(0, max_pos.y)
 	
 	# signals
-	b.connect("pressed", self, "_on_destroy", [color, b])
-	b.connect("pressed", b, "queue_free")
+	b.connect("pressed", _on_destroy(color, b))
+	b.connect("pressed", b.queue_free)
 	# modulate
 	b.self_modulate = color
 	

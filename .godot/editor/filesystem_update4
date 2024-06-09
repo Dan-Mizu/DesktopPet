@@ -1,0 +1,13 @@
+res://Root.tscn
+res://Pet/PetTheme.tres
+res://Pet/Calculator.gd
+res://Pet/Menus.gd
+res://Pet/Notes.gd
+res://Pet/Pet.gd
+res://Root.gd
+res://Pet/Shortcuts.gd
+res://Pet/windows.gd
+res://Pet/minigames/balloonPop/balloonPop.gd
+res://Pet/popupOpener/popupOpener.gd
+res://Portray/Rectangle.gd
+res://Pet/Pet.tscn

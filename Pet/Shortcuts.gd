@@ -1,9 +1,9 @@
 extends VBoxContainer
 
-onready var conf_btn := $Configs
-onready var add_btn := $Configs/add
-onready var rem_btn := $Configs/remove
-onready var _list := $Scroll/list
+@onready var conf_btn := $Configs
+@onready var add_btn := $Configs/add
+@onready var rem_btn := $Configs/remove
+@onready var _list := $Scroll/list
 
 
 const SHORTCUT_SAVE_PATH := "user://shortcuts.json"
@@ -13,10 +13,11 @@ var shortcut_paths := []
 
 func _ready():
 	#load
-	var f = File.new()
-	if f.open(SHORTCUT_SAVE_PATH, File.READ) != OK: return
-	
-	shortcut_paths = parse_json(f.get_as_text())
+	var f = FileAccess.open(SHORTCUT_SAVE_PATH, FileAccess.READ)
+	if f == null:
+		prints(FileAccess.get_open_error())
+		return
+	shortcut_paths = JSON.parse_string(f.get_as_text())
 	refresh_list()
 	f.close()
 	
@@ -31,16 +32,17 @@ func refresh_list():
 		btn.text = path.get_file()
 		_list.add_child(btn)
 # warning-ignore:return_value_discarded
-		btn.connect("pressed", self, "pressed", [path])
+		btn.connect("pressed", pressed(path))
 	
 	
 
 
 func save(data=shortcut_paths):
-	var f = File.new()
-	if f.open(SHORTCUT_SAVE_PATH, File.WRITE) != OK: return
-	
-	f.store_string(to_json(data))
+	var f = FileAccess.open(SHORTCUT_SAVE_PATH, FileAccess.WRITE)
+	if f == null:
+		prints(FileAccess.get_open_error())
+		return
+	f.store_string(JSON.stringify(data))
 	print("Shortcuts saved")
 	f.close()
 
@@ -60,7 +62,7 @@ func pressed(path:String):
 			var command = str(drive, " && cd ", path.get_base_dir().trim_prefix(drive))
 			command+=" && start "+ path.get_file()+" & exit"
 			
-			prints("Started:", OS.execute("cmd.exe", ["/C", command], false))
+			prints("Started:", OS.execute("cmd.exe", ["/C", command]))
 		_:
 			# warning-ignore:return_value_discarded
 			OS.shell_open(path)

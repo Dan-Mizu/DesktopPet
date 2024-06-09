@@ -3,7 +3,7 @@ extends VBoxContainer
 # I'm not sure what would be the best way to solve it.
 
 
-onready var ignore_mouse := $ignore_mouse_timer
+@onready var ignore_mouse := $ignore_mouse_timer
 var mouse_inside := false
 
 var following := false
@@ -24,12 +24,11 @@ func _process(delta):
 func _ready():
 	for b in get_children():
 		if b is Control:
-			b.connect("mouse_entered", self, "set", ["mouse_inside", true])
+			b.connect("mouse_entered", _on_mouse_entered)
 #			b.connect("mouse_exited", self, "set", ["mouse_inside", false])
 
-
-
-
+func _on_mouse_entered():
+	mouse_inside = true
 
 func _on_follow_toggled(button_pressed):
 	following = button_pressed

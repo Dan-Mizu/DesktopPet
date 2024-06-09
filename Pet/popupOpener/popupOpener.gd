@@ -5,17 +5,17 @@ enum OPENMODE {
 	
 }
 
-export var hide_again := true
-export(NodePath) var popup_path : NodePath
+@export var hide_again := true
+@export var popup_path : NodePath
 
-var popup : WindowDialog
+var popup : Popup
 
 func _ready():
 	popup = get_node(popup_path)
 
 
 func _on_popupOpener_pressed():
-	if !popup is WindowDialog:
+	if !popup is Popup:
 		push_error(str(popup, " is not a WindowDialog"))
 		return
 	
@@ -23,10 +23,10 @@ func _on_popupOpener_pressed():
 		
 		popup.popup()
 # warning-ignore:return_value_discarded
-		popup.connect("popup_hide", popup, "show")
+		popup.connect("popup_hide", popup.show)
 		return
 	
 	
 	if hide_again:
-		popup.disconnect("popup_hide", popup, "show")
+		popup.disconnect("popup_hide", popup.show)
 		popup.hide()
